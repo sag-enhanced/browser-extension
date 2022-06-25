@@ -1,0 +1,44 @@
+{
+    "name": "SAG",
+    "description": "CAPTCHA assistance for sage.leodev.xyz",
+    "version": "1.0.0",
+    "manifest_version": 2,
+    "permissions": [
+        "webRequest",
+        "webRequestBlocking",
+        "chrome-extension://jcdaohjbjnbmcfobkljkdkpjafpogmjh/*",
+        "*://localhost:3000/*",
+        "*://sage.leodev.xyz/*",
+        "*://store.steampowered.com/join/*"
+    ],
+    "host_permissions": [
+        "chrome-extension://jcdaohjbjnbmcfobkljkdkpjafpogmjh/*",
+        "*://localhost:3000/*",
+        "*://sage.leodev.xyz/*",
+        "*://store.steampowered.com/join/*"
+    ],
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://store.steampowered.com/join/"
+            ],
+            "js": [
+                "captcha.js"
+            ],
+            "all_frames": true
+        },
+        {
+            "matches": [
+                "*://localhost:*/*",
+                "https://sage.leodev.xyz/*"
+            ],
+            "js": [
+                "rpcbridge.js"
+            ],
+            "all_frames": true
+        }
+    ]
+}
