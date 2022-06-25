@@ -6,13 +6,7 @@
     "permissions": [
         "webRequest",
         "webRequestBlocking",
-        "chrome-extension://jcdaohjbjnbmcfobkljkdkpjafpogmjh/*",
-        "*://localhost:3000/*",
-        "*://sage.leodev.xyz/*",
-        "*://store.steampowered.com/join/*"
-    ],
-    "host_permissions": [
-        "chrome-extension://jcdaohjbjnbmcfobkljkdkpjafpogmjh/*",
+        "chrome-extension://kpngajdggmdblhjmgellknlelcngaghj/*",
         "*://localhost:3000/*",
         "*://sage.leodev.xyz/*",
         "*://store.steampowered.com/join/*"
