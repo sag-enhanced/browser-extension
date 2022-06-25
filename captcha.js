@@ -1,7 +1,7 @@
 if(window.location.hash.startsWith("#sag/")) {
     console.log("[SAGE] init");
     const css = document.createElement("style");
-    css.innerText = `#global_header{display:none;}.footer{display:none;}.section_title{display:none;}.row_flex{display:none !important;}.form_row:last-child{display:none;}`;
+    css.innerText = `#global_header{display:none;}.responsive_header{display:none !important;}.footer{display:none;}.section_title{display:none;}.row_flex{display:none !important;}.form_row:last-child{display:none;}`;
     document.head.appendChild(css);
     setInterval(() => {
         const token = document.getElementById("g-recaptcha-response").value;
