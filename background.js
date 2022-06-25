@@ -47,7 +47,7 @@ async function verifyEmail(link) {
 
 async function createAccount(username, password, creationId) {
     return await encodeResponse(
-        fetch("https://store.steampowered.com/join/createaccount", {
+        await fetch("https://store.steampowered.com/join/createaccount", {
             method: "POST",
             mode: "cors",
             credentials: "include",
