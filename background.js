@@ -59,7 +59,22 @@ async function createAccount(username, password, creationId) {
         })
     );
 }
-const events = { about, requestVerifyEmail, verifyEmail, createAccount };
+
+async function sendWebhook(webhook, payload) {
+    return await encodeResponse(
+        await fetch(webhook, {
+            method: "POST",
+            mode: "cors",
+            credentials: "include",
+            body: JSON.stringify(payload),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+    );
+}
+
+const events = { about, requestVerifyEmail, verifyEmail, createAccount, sendWebhook };
 
 browser.webRequest.onBeforeSendHeaders.addListener(
     (details) => {
