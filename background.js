@@ -1,9 +1,10 @@
 const browser = globalThis.chrome || globalThis.browser;
 
 async function encodeResponse(response) {
+    const headers = Object.fromEntries(response.headers.entries());
     return {
-        json: await response.json(),
-        headers: Object.fromEntries(response.headers.entries()),
+        data: headers["content-type"].startsWith("application/json") ? await response.json() : await response.text(),
+        headers,
         ok: response.ok,
         redirected: response.redirected,
         status: response.status,
@@ -45,16 +46,18 @@ async function verifyEmail(link) {
 }
 
 async function createAccount(username, password, creationId) {
-    return fetch("https://store.steampowered.com/join/createaccount", {
-        method: "POST",
-        mode: "cors",
-        credentials: "include",
-        body: new URLSearchParams({accountname: username, password, count: 4, creation_sessionid: creationId}).toString(),
-        headers: {
-            ...steamImpersonation,
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        }
-    })
+    return await encodeResponse(
+        fetch("https://store.steampowered.com/join/createaccount", {
+            method: "POST",
+            mode: "cors",
+            credentials: "include",
+            body: new URLSearchParams({accountname: username, password, count: 4, creation_sessionid: creationId}).toString(),
+            headers: {
+                ...steamImpersonation,
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            }
+        })
+    );
 }
 const events = { about, requestVerifyEmail, verifyEmail, createAccount };
 
