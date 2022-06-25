@@ -13,7 +13,7 @@ async function encodeResponse(response) {
 }
 
 async function about() {
-    return { name: "SAGE", version: "1.0.0" };
+    return { name: "SAGE", version: 1 };
 }
 
 const steamImpersonation = {
