@@ -1,4 +1,5 @@
 const browser = globalThis.chrome || globalThis.browser;
+const isFirefox = !!globalThis.browser;
 
 async function encodeResponse(response) {
     const headers = Object.fromEntries(response.headers.entries());
@@ -91,7 +92,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(
         return { requestHeaders: details.requestHeaders };
     },
     { urls: [`chrome-extension://${browser.runtime.id}/*`, "*://store.steampowered.com/join/*"] },
-    [ "blocking", "requestHeaders", "extraHeaders" ]
+    isFirefox ? [ "blocking", "requestHeaders" ] : [ "blocking", "requestHeaders", "extraHeaders" ]
 )
 
 

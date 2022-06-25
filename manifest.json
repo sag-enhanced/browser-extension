@@ -7,12 +7,17 @@
         "webRequest",
         "webRequestBlocking",
         "chrome-extension://kpngajdggmdblhjmgellknlelcngaghj/*",
-        "*://localhost:3000/*",
+        "*://localhost/*",
         "*://sage.leodev.xyz/*",
         "*://store.steampowered.com/join/*"
     ],
     "background": {
         "scripts": ["background.js"]
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "{16c0aa8c-6170-4fa4-8c6a-3ac1a4194b22}"
+        }
     },
     "content_scripts": [
         {
@@ -26,7 +31,7 @@
         },
         {
             "matches": [
-                "*://localhost:*/*",
+                "*://localhost/*",
                 "https://sage.leodev.xyz/*"
             ],
             "js": [
