@@ -29,7 +29,6 @@
         },
         {
             "matches": [
-                "*://localhost/*",
                 "https://sage.leodev.xyz/*"
             ],
             "js": [
