@@ -16,7 +16,7 @@ async function encodeResponse(response) {
 }
 
 async function about() {
-    return { name: "SAGE", version: 1 };
+    return { name: "SAGE", version: 2 };
 }
 
 const steamImpersonation = {
