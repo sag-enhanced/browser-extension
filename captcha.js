@@ -9,7 +9,7 @@ if(window.location.hash.startsWith("#sag/")) {
             const gid = document.getElementById("captchagid").value;
             console.log("[SAGE] captcha solved", token);
             const session = window.location.hash.split("/")[1];
-            document.location = `https://sage.leodev.xyz/gen?token=${token}&gid=${gid}&session=${session}`;
+            document.location = `https://sage.leodev.xyz/gen#token=${token}&gid=${gid}&session=${session}`;
         }
     }, 500);
 }
