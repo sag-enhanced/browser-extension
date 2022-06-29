@@ -86,7 +86,6 @@ browser.webRequest.onBeforeSendHeaders.addListener(
     (details) => {
         const origin = details.originUrl || details.initiator;
         if(!origin) return;
-        console.log("request from", new URL(origin).hostname, origin, details, activeGenerations)
         if(
             origin.indexOf(browser.runtime.id) >= 0
             || details.url === "https://store.steampowered.com/join/refreshcaptcha/"
