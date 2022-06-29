@@ -1,11 +1,12 @@
 {
     "name": "SAGE",
     "description": "Assistance for helping sage.leodev.xyz interact with Steam and other services.",
-    "version": "1",
+    "version": "2",
     "manifest_version": 2,
     "permissions": [
         "webRequest",
         "webRequestBlocking",
+        "*://recaptcha.net/recaptcha/enterprise/*",
         "*://sage.leodev.xyz/*",
         "*://store.steampowered.com/join/*"
     ],

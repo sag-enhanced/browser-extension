@@ -1,6 +1,8 @@
 const browser = globalThis.chrome || globalThis.browser;
 const isFirefox = !!globalThis.browser;
 
+let activeGenerations = 0;
+
 async function encodeResponse(response) {
     const headers = Object.fromEntries(response.headers.entries());
     return {
@@ -23,6 +25,7 @@ const steamImpersonation = {
 }
 
 async function requestVerifyEmail(email, token, gid) {
+    if(activeGenerations > 0) activeGenerations--;
     return await encodeResponse(
         await fetch("https://store.steampowered.com/join/ajaxverifyemail", {
             method: "POST",
@@ -76,22 +79,76 @@ async function sendWebhook(webhook, payload) {
 }
 
 const events = { about, requestVerifyEmail, verifyEmail, createAccount, sendWebhook };
+const STEAM_USERAGENT = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US; Valve Steam Client/default/0; ) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36";
+// const STEAM_USERAGENT = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_15_7; en-US; Valve Steam Client/default/0; ) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36";
 
 browser.webRequest.onBeforeSendHeaders.addListener(
     (details) => {
-        for(const header of details.requestHeaders) {
-            if(header.name.toLowerCase() === "origin") {
-                if(header.value !== `chrome-extension://${browser.runtime.id}`) return;
-                header.value = "https://store.steampowered.com";
-            } else if(header.name.toLowerCase() === "sec-fetch-site") {
-                header.value = "same-origin";
+        const origin = details.originUrl || details.initiator;
+        if(!origin) return;
+        console.log("request from", new URL(origin).hostname, origin, details, activeGenerations)
+        if(
+            origin.indexOf(browser.runtime.id) >= 0
+            || details.url === "https://store.steampowered.com/join/refreshcaptcha/"
+            || (details.url.startsWith("https://recaptcha.net/recaptcha/enterprise/bframe") && origin === "https://store.steampowered.com")
+        ) {
+            // this is our own request to steam, so lets impersonate the steam client perfectly
+            for(const header of details.requestHeaders) {
+                if(header.name.toLowerCase() === "origin") {
+                    header.value = "https://store.steampowered.com";
+                } else if(header.name.toLowerCase() === "sec-fetch-site") {
+                    header.value = "same-origin";
+                } else if(header.name.toLowerCase() === "user-agent") {
+                    header.value = STEAM_USERAGENT;
+                }
+            }
+            details.requestHeaders = details.requestHeaders.filter(x => (
+                !x.name.toLowerCase().startsWith("sec-ch-")
+                && x.name.toLowerCase() !== "cache-control"
+                && x.name.toLowerCase() !== "dnt"
+                && x.name.toLowerCase() !== "referer"
+                && x.name.toLowerCase() !== "pragma"
+            ));
+            details.requestHeaders.push({ name: "referer", value: "https://store.steampowered.com/join/?l=english" });
+        } else if(
+            (new URL(origin).hostname === "recaptcha.net" && activeGenerations > 0) 
+            || (details.url.startsWith("https://recaptcha.net/recaptcha/enterprise/anchor") && details.url.indexOf("6LdIFr0ZAAAAAO3vz0O0OQrtAefzdJcWQM2TMYQH") >= 0)
+            || details.url.startsWith("https://store.steampowered.com/join/")
+        ) {
+            if(details.url.startsWith("https://recaptcha.net/recaptcha/enterprise/anchor"))
+                activeGenerations++;
+            for(const header of details.requestHeaders) {
+                if(header.name.toLowerCase() === "user-agent") {
+                    header.value = STEAM_USERAGENT;
+                } else if(header.name.toLowerCase() === "referer") {
+                    header.value = "https://store.steampowered.com/join/?l=english";
+                }
+            }
+            if(details.url.startsWith("https://store.steampowered.com/join/")) {
+                for(const header of details.requestHeaders) {
+                    if(header.name.toLowerCase() === "sec-fetch-site") {
+                        header.value = "none";
+                    }
+                }
+                details.requestHeaders = details.requestHeaders.filter(x => (
+                    !x.name.toLowerCase().startsWith("sec-ch-")
+                    && x.name.toLowerCase() !== "cache-control"
+                    && x.name.toLowerCase() !== "dnt"
+                    && x.name.toLowerCase() !== "referer"
+                    && x.name.toLowerCase() !== "pragma"
+                ));
             }
         }
-        details.requestHeaders.push({ name: "referrer", value: "https://store.steampowered.com/join" });
         console.log("[SAGE] HTTP request", details);
         return { requestHeaders: details.requestHeaders };
     },
-    { urls: [`chrome-extension://${browser.runtime.id}/*`, "*://store.steampowered.com/join/*"] },
+    {
+        urls: [
+            `chrome-extension://${browser.runtime.id}/*`,
+            "*://store.steampowered.com/join/*",
+            "*://recaptcha.net/recaptcha/enterprise/*"
+        ]
+    },
     isFirefox ? [ "blocking", "requestHeaders" ] : [ "blocking", "requestHeaders", "extraHeaders" ]
 )
 
