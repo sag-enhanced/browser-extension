@@ -18,7 +18,7 @@ let rpcFunctions;
     }
     
     async function about() {
-        return { name: "SAGE", version: 2 };
+        return { name: "SAGE", version: 3 };
     }
     
     const steamImpersonation = {
