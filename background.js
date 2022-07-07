@@ -165,6 +165,7 @@ let rpcFunctions;
                     "user-agent": STEAM_USERAGENT,
                     referer: "https://store.steampowered.com/join/?l=english",
                     "sec-fetch-site": "none",
+                    cookie: null,
                     ...removeOthers, ...removeAllClientHints
                 })
             }
