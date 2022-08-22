@@ -116,7 +116,8 @@ let rpcFunctions;
             delete modifications[name];
         }
         for(const name in modifications) {
-            currentHeaders.push({ name, value: modifications[name] });
+            if(modifications[name] !== null)
+                currentHeaders.push({ name, value: modifications[name] });
         }
         return currentHeaders.filter(x => x.value !== null);
     }
@@ -156,7 +157,8 @@ let rpcFunctions;
             ) {
                 details.requestHeaders = modifyHeaders(details.requestHeaders, {
                     "user-agent": STEAM_USERAGENT,
-                    referer: "https://store.steampowered.com/join/?l=english"
+                    referer: "https://store.steampowered.com/join/?l=english",
+                    ...removeOthers, ...removeAllClientHints
                 })
             }
             // main request to steam
