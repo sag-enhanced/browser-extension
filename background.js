@@ -1,6 +1,9 @@
 const browser = globalThis.chrome || globalThis.browser;
 const isFirefox = !!globalThis.browser;
 
+const activeTabIds = {};
+
+
 /* RPC */
 
 let rpcFunctions;
@@ -85,6 +88,7 @@ let rpcFunctions;
     browser.runtime.onConnect.addListener(port => {
         console.assert(port.name === "sage");
         console.log("[SAGE] tab connected", port);
+        delete activeTabIds[port.sender.tab.id];
         port.onMessage.addListener(async msg => {
             console.log("[SAGE] [RPC]", msg);
             let result;
@@ -140,6 +144,20 @@ let rpcFunctions;
             const origin = details.originUrl || details.initiator;
             if(!origin) return;
             const IS_STEAM_CAPTCHA = details.url.indexOf(RECAPTCHA_SITEKEY) >= 0;
+            // main request to steam
+            if(details.url.startsWith("https://store.steampowered.com/join/")) {
+                const url = new URL(details.url);
+                if(!url.hash.startsWith("#sage/")) return;
+                activeTabIds[details.tabId] = true;
+                details.requestHeaders = modifyHeaders(details.requestHeaders, {
+                    "user-agent": STEAM_USERAGENT,
+                    referer: "https://store.steampowered.com/join/?l=english",
+                    "sec-fetch-site": "none",
+                    cookie: null,
+                    ...removeOthers, ...removeAllClientHints
+                })
+            }
+            if(!activeTabIds[details.tabId]) return;
             // our own request - lets change cors headers and other
             if(origin.indexOf(browser.runtime.id) >= 0) {
                 details.requestHeaders = modifyHeaders(details.requestHeaders, {
@@ -158,16 +176,6 @@ let rpcFunctions;
                 details.requestHeaders = modifyHeaders(details.requestHeaders, {
                     "user-agent": STEAM_USERAGENT,
                     referer: "https://store.steampowered.com/join/?l=english",
-                    ...removeOthers, ...removeAllClientHints
-                })
-            }
-            // main request to steam
-            else if(details.url.startsWith("https://store.steampowered.com/join/")) {
-                details.requestHeaders = modifyHeaders(details.requestHeaders, {
-                    "user-agent": STEAM_USERAGENT,
-                    referer: "https://store.steampowered.com/join/?l=english",
-                    "sec-fetch-site": "none",
-                    cookie: null,
                     ...removeOthers, ...removeAllClientHints
                 })
             }
