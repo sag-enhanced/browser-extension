@@ -22,7 +22,7 @@ let rpcFunctions;
     
     async function about() {
         const manifest = browser.runtime.getManifest();
-        return { name: "SAGE", version: +manifest.version };
+        return { name: "SAGE", version: +manifest.version, browser: isFirefox ? "firefox" : "chromium", platform: navigator.userAgentData ? navigator.userAgentData.platform : navigator.platform };
     }
     
     const steamImpersonation = {
@@ -199,6 +199,6 @@ let rpcFunctions;
     );
 }
 
-rpcFunctions.about().then(data => {
-    console.log(`[SAGE] Running version ${data.version}`);
+rpcFunctions.about().then(about => {
+    console.log(`[SAGE] Running version ${about.version} in ${about.browser} on ${about.platform}`);
 });
