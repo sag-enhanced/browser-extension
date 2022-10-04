@@ -1,11 +1,12 @@
 {
     "name": "SAGE",
     "description": "Assistance for helping sage.leodev.xyz interact with Steam and other services.",
-    "version": "4",
+    "version": "5",
     "manifest_version": 2,
     "permissions": [
         "webRequest",
         "webRequestBlocking",
+        "cookies",
         "*://recaptcha.net/recaptcha/enterprise/*",
         "*://sage.leodev.xyz/*",
         "*://store.steampowered.com/join/*"
@@ -29,7 +30,17 @@
                 "https://store.steampowered.com/join/"
             ],
             "js": [
-                "captcha.js"
+                "inject_steam.js"
+            ],
+            "all_frames": true,
+            "run_at": "document_start"
+        },
+        {
+            "matches": [
+                "https://recaptcha.net/recaptcha/enterprise/anchor*"
+            ],
+            "js": [
+                "inject_recaptcha.js"
             ],
             "all_frames": true
         },
@@ -38,9 +49,10 @@
                 "https://sage.leodev.xyz/*"
             ],
             "js": [
-                "rpcbridge.js"
+                "inject_sage.js"
             ],
-            "all_frames": true
+            "all_frames": true,
+            "run_at": "document_start"
         }
     ]
 }

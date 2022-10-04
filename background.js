@@ -32,7 +32,7 @@ let rpcFunctions;
     
     async function requestVerifyEmail(email, token, gid) {
         return await encodeResponse(
-            await fetch("https://store.steampowered.com/join/ajaxverifyemail", {
+            await fetch("https://store.steampowered.com/join/ajaxverifyemail#sage", {
                 method: "POST",
                 mode: "cors",
                 credentials: "include",
@@ -44,6 +44,7 @@ let rpcFunctions;
             })
         );
     }
+
     async function verifyEmail(link) {
         return await encodeResponse(
             await fetch(link, {
@@ -54,8 +55,20 @@ let rpcFunctions;
         );
     }
     
+    const steamCookieLock = lock();
     async function createAccount(username, password, creationId) {
-        return await encodeResponse(
+        console.log("[SAGE] [CREATE ACCOUNT] waiting for lock", creationId);
+        await steamCookieLock();
+        steamCookieLock.lock();
+        console.log("[SAGE] [CREATE ACCOUNT] acquired lock", creationId);
+        // we remove the cookie because otherwise we can get an outdated cookie
+        // also for some reason, deleting cookies is not instant on firefox, so we
+        // just do it again until its really gone
+        while(await new Promise(res => {
+            chrome.cookies.remove({ name: "steamLoginSecure", url: "https://store.steampowered.com" }, res);
+        }) !== null)
+            await new Promise(res => setTimeout(res, 50));
+        const response = await encodeResponse(
             await fetch("https://store.steampowered.com/join/createaccount", {
                 method: "POST",
                 mode: "cors",
@@ -67,6 +80,21 @@ let rpcFunctions;
                 }
             })
         );
+        let cookie, tries = 40;
+        while(tries > 0 && response.data.bSuccess) {
+            cookie = await new Promise(res => {
+                chrome.cookies.get({ name: "steamLoginSecure", url: "https://store.steampowered.com" }, res);
+            });
+            if(cookie) break;
+            console.log("[SAGE] [CREATE ACCOUNT] no cookie yet, retrying in 50ms");
+            await new Promise(res => setTimeout(res, 50));
+            tries--;
+        }
+            
+        console.log("[SAGE] [CREATE ACCOUNT] cookie", cookie)
+        steamCookieLock.unlock();
+        console.log("[SAGE] [CREATE ACCOUNT] released lock", creationId);
+        return { response, cookie };
     }
     
     async function sendWebhook(webhook, payload) {
@@ -82,8 +110,60 @@ let rpcFunctions;
             })
         );
     }
+
+    async function disableSteamGuardRequest(cookie) {
+        console.log("[SAGE] [STEAMGUARD DISABLE] cookie", cookie);
+        delete cookie.hostOnly;
+        delete cookie.session;
+        if(cookie.domain === ".store.steampowered.com") cookie.domain = "store.steampowered.com";
+        cookie.url = `https://${cookie.domain}${cookie.path}`;
+
+        console.log("[SAGE] [STEAMGUARD DISABLE] waiting for lock");
+        await steamCookieLock();
+        steamCookieLock.lock();
+        console.log("[SAGE] [STEAMGUARD DISABLE] acquired lock");
+        await new Promise(res => chrome.cookies.set(cookie, res));
+
+        // enable steam guard first
+        let sessionID;
+        sessionID = await new Promise(res => {
+            chrome.cookies.get({ name: "sessionid", url: "https://store.steampowered.com" }, res);
+        });
+        const enable = await fetch("https://store.steampowered.com/twofactor/manage_action", {
+            method: "POST",
+            mode: "cors",
+            credentials: "include",
+            body: new URLSearchParams({ action: "email", sessionid: sessionID.value, email_authenticator_check: "on" }).toString(),
+            headers: {
+                ...steamImpersonation,
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            }
+        });
+
+        sessionID = await new Promise(res => {
+            chrome.cookies.get({ name: "sessionid", url: "https://store.steampowered.com" }, res);
+        });
+        const disable = await fetch("https://store.steampowered.com/twofactor/manage_action", {
+            method: "POST",
+            mode: "cors",
+            credentials: "include",
+            body: new URLSearchParams({ action: "actuallynone", sessionid: sessionID.value }).toString(),
+            headers: {
+                ...steamImpersonation,
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            }
+        });
+
+        steamCookieLock.unlock();
+        console.log("[SAGE] [STEAMGUARD DISABLE] released lock");
+
+        return {
+            enable: await encodeResponse(enable),
+            disable: await encodeResponse(disable),
+        }
+    }
     
-    rpcFunctions = { about, requestVerifyEmail, verifyEmail, createAccount, sendWebhook };
+    rpcFunctions = { about, requestVerifyEmail, verifyEmail, createAccount, sendWebhook, disableSteamGuardRequest };
     
     browser.runtime.onConnect.addListener(port => {
         console.assert(port.name === "sage");
@@ -144,6 +224,15 @@ let rpcFunctions;
             const origin = details.originUrl || details.initiator;
             if(!origin) return;
             const IS_STEAM_CAPTCHA = details.url.indexOf(RECAPTCHA_SITEKEY) >= 0;
+            // our own request
+            if(details.url.endsWith("#sage")) {
+                console.log("[SAGE] HTTP own http request", details);
+                details.requestHeaders = modifyHeaders(details.requestHeaders, {
+                    "user-agent": STEAM_USERAGENT,
+                    origin: null,
+                    ...removeOthers, ...removeAllClientHints
+                })
+            }
             // main request to steam
             if(details.url.startsWith("https://store.steampowered.com/join/")) {
                 const url = new URL(details.url);
@@ -202,3 +291,40 @@ let rpcFunctions;
 rpcFunctions.about().then(about => {
     console.log(`[SAGE] Running version ${about.version} in ${about.browser} on ${about.platform}`);
 });
+
+/* helpers */
+
+// taken from https://github.com/hansSchall/simple-promise-locks/blob/main/index.js
+function lock(lockedDefault = false) {
+    const waiting = [];
+    let locked = lockedDefault;
+    const lock = function () {
+        return new Promise(
+            resolve => {
+                if (locked)
+                    waiting.push(resolve);
+                else
+                    resolve();
+            }
+        );
+    };
+    lock.unlock = () => {
+        locked = false;
+        while (!locked && waiting.length) {
+            waiting.shift()();
+        }
+    };
+    lock.lock = (locked_) => {
+        if (locked_ === false) lock.unlock();
+        locked = true;
+    };
+    Object.defineProperty(lock, "locked", {
+        get() {
+            return locked;
+        },
+        set(locked) {
+            lock.lock(locked);
+        }
+    });
+    return lock;
+};

@@ -2,6 +2,12 @@ const port = chrome.runtime.connect({ name: "sage" });
 const isFirefox = !!globalThis.browser;
 
 console.log("[SAGE] [RPCBRIDGE] init");
+setTimeout(() => {
+    const manifest = chrome.runtime.getManifest();
+    document.body.setAttribute("sage-data", JSON.stringify({
+        version: +manifest.version
+    }));
+}, 0)
 
 const customEventFactory = isFirefox ? (
     (name, options) => {
