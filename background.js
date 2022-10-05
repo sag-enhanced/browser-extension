@@ -64,7 +64,7 @@ let rpcFunctions;
         // we remove the cookie because otherwise we can get an outdated cookie
         // also for some reason, deleting cookies is not instant on firefox, so we
         // just do it again until its really gone
-        let tries, cookie = 80;
+        let tries = 80, cookie;
         while((cookie = await new Promise(res => {
             chrome.cookies.remove({ name: "steamLoginSecure", url: "https://store.steampowered.com" }, res);
         })) !== null) {
