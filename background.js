@@ -64,10 +64,16 @@ let rpcFunctions;
         // we remove the cookie because otherwise we can get an outdated cookie
         // also for some reason, deleting cookies is not instant on firefox, so we
         // just do it again until its really gone
-        while(await new Promise(res => {
+        let tries, cookie = 80;
+        while((cookie = await new Promise(res => {
             chrome.cookies.remove({ name: "steamLoginSecure", url: "https://store.steampowered.com" }, res);
-        }) !== null)
+        })) !== null) {
             await new Promise(res => setTimeout(res, 50));
+            if(tries-- < 0) {
+                console.log("[SAGE] [CREATE ACCOUNT] WARNING: can't delete login cookie", cookie);
+                break;
+            }
+        }
         const response = await encodeResponse(
             await fetch("https://store.steampowered.com/join/createaccount", {
                 method: "POST",
@@ -80,7 +86,7 @@ let rpcFunctions;
                 }
             })
         );
-        let cookie, tries = 40;
+        cookie = undefined, tries = 40;
         while(tries > 0 && response.data.bSuccess) {
             cookie = await new Promise(res => {
                 chrome.cookies.get({ name: "steamLoginSecure", url: "https://store.steampowered.com" }, res);
