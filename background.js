@@ -91,21 +91,29 @@ let rpcFunctions;
                 }
             })
         );
-        cookie = undefined, tries = 40;
+        tries = 40;
+        const cookieJar = {login: "steamLoginSecure", sessionid: "sessionid"};
         while(tries > 0 && response.data.bSuccess) {
-            cookie = await new Promise(res => {
-                chrome.cookies.get({ name: "steamLoginSecure", url: "https://store.steampowered.com" }, res);
-            });
-            if(cookie) break;
+            for(const name in cookieJar) {
+                const value = cookieJar[name];
+                if(typeof value === "string") {
+                    const cookie = await new Promise(res => {
+                        chrome.cookies.get({ name: value, url: "https://store.steampowered.com" }, res);
+                    });
+                    if(!cookie) continue;
+                    cookieJar[name] = cookie;
+                }
+            }
+            if(!Object.values(cookieJar).some(x => typeof x === "string")) break;
             console.log("[SAGE] [CREATE ACCOUNT] no cookie yet, retrying in 50ms");
             await new Promise(res => setTimeout(res, 50));
             tries--;
         }
-            
-        console.log("[SAGE] [CREATE ACCOUNT] cookie", cookie)
+        
+        console.log("[SAGE] [CREATE ACCOUNT] cookieJar", cookieJar)
         steamCookieLock.unlock();
         console.log("[SAGE] [CREATE ACCOUNT] released lock", creationId);
-        return { response, cookie };
+        return { response, cookieJar };
     }
     
     async function sendWebhook(webhook, payload) {
@@ -122,24 +130,29 @@ let rpcFunctions;
         );
     }
 
-    async function disableSteamGuardRequest(cookie) {
-        console.log("[SAGE] [STEAMGUARD DISABLE] cookie", cookie);
-        delete cookie.hostOnly;
-        delete cookie.session;
-        if(cookie.domain === ".store.steampowered.com") cookie.domain = "store.steampowered.com";
-        cookie.url = `https://${cookie.domain}${cookie.path}`;
-
+    async function disableSteamGuardRequest(cookieJar) {
         console.log("[SAGE] [STEAMGUARD DISABLE] waiting for lock");
         await steamCookieLock();
         steamCookieLock.lock();
         console.log("[SAGE] [STEAMGUARD DISABLE] acquired lock");
-        await new Promise(res => chrome.cookies.set(cookie, res));
+
+        console.log("[SAGE] [STEAMGUARD DISABLE] cookieJar", cookieJar);
+        for(const cookie of Object.values(cookieJar)) {
+            delete cookie.hostOnly;
+            delete cookie.session;
+            if(cookie.domain === ".store.steampowered.com") cookie.domain = "store.steampowered.com";
+            cookie.url = `https://${cookie.domain}${cookie.path}`;
+
+            await new Promise(res => chrome.cookies.set(cookie, res));
+            console.log("[SAGE] [STEAMGUARD DISABLE] cookie set", cookie);
+        }
 
         // enable steam guard first
         let sessionID;
         sessionID = await new Promise(res => {
             chrome.cookies.get({ name: "sessionid", url: "https://store.steampowered.com" }, res);
         });
+        console.log("[SAGE] [STEAMGUARD DISABLE] session", sessionID);
         const enable = await fetch("https://store.steampowered.com/twofactor/manage_action", {
             method: "POST",
             mode: "cors",
