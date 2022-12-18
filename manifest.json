@@ -1,7 +1,7 @@
 {
     "name": "SAGE",
     "description": "Assistance for helping sage.leodev.xyz interact with Steam and other services.",
-    "version": "6",
+    "version": "7",
     "manifest_version": 2,
     "permissions": [
         "webRequest",
