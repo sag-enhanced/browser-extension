@@ -30,13 +30,13 @@ let rpcFunctions;
         "X-Requested-With": "XMLHttpRequest"
     }
     
-    async function requestVerifyEmail(email, token, gid) {
+    async function requestVerifyEmail(email, captcha) {
         return await encodeResponse(
             await fetch("https://store.steampowered.com/join/ajaxverifyemail#sage", {
                 method: "POST",
                 mode: "cors",
                 credentials: "include",
-                body: new URLSearchParams(({ email, captchagid: gid, captcha_text: token, elang: 0 })).toString(),
+                body: new URLSearchParams(({ email, captchagid: captcha.gid, captcha_text: captcha.recaptcha ?? captcha.textcaptcha, elang: 0 })).toString(),
                 headers: {
                     ...steamImpersonation,
                     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",

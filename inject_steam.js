@@ -7,19 +7,28 @@ if(window.location.hash === "#sage") {
         document.head.appendChild(css);
     }, 0);
     let intervalId;
+    const submit = (name, value) => {
+        const gid = document.getElementById("captchagid").value;
+        let origin = "https://sage.leodev.xyz";
+        if(document.referrer) {
+            const referrer = new URL(document.referrer);
+            if(referrer.origin && referrer.origin.includes("localhost"))
+                origin = referrer.origin;
+        }
+        document.location = `${origin}/gen#${name}=${value}&gid=${gid}`;
+        clearInterval(intervalId);
+    }
+
     intervalId = setInterval(() => {
-        const token = document.getElementById("g-recaptcha-response");
-        if(token && token.value) {
-            const gid = document.getElementById("captchagid").value;
-            console.log("[SAGE] [STEAM] captcha solved", token.value);
-            let origin = "https://sage.leodev.xyz";
-            if(document.referrer) {
-                const referrer = new URL(document.referrer);
-                if(referrer.origin && referrer.origin.includes("localhost"))
-                    origin = referrer.origin;
-            }
-            document.location = `${origin}/gen#token=${token.value}&gid=${gid}`;
-            clearInterval(intervalId);
+        const token = document.getElementById("g-recaptcha-response")?.value;
+        if(token) {
+            console.log("[SAGE] [STEAM] recaptcha solved", token);
+            submit("recaptcha", token);
         };
+        const text = document.getElementById("captcha_text")?.value;
+        if(text && text.length >= 6) {
+            console.log("[SAGE] [STEAM] textcaptcha solved", text);
+            submit("textcaptcha", text);
+        }
     }, 500);
 }
