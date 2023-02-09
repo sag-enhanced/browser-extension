@@ -1,11 +1,20 @@
 if(window.location.hash === "#sage") {
     console.log("[SAGE] [STEAM] init");
-    setTimeout(() => {
-        // the setTimeout makes sure the DOM is setup and we can actually add the css
+
+    const injectStyles = () => {
+        console.log("[SAG] [STYLES] injecting styles");
         const css = document.createElement("style");
         css.innerText = `.section_title,.row_flex,.form_row:last-child,.responsive_header,#global_header,#footer,#footer_spacer{display:none !important;}.responsive_page_content,.responsive_page_template_content,.joinsteam_content_container{padding:0px !important;}#captcha_entry{position: fixed;top: 0;left: 0;height: 100vh;width: 100vw;display: flex;justify-content: center;align-items: center;}`;
         document.head.appendChild(css);
-    }, 0);
+    };
+
+    console.log(`[SAGE] [STYLES] scheduled style injection: ${document.readyState}`);
+    if(document.readyState === "complete") {
+        setTimeout(injectStyles, 0);
+    } else {
+        addEventListener("DOMContentLoaded", injectStyles);
+    }
+
     let intervalId;
     const submit = (name, value) => {
         const gid = document.getElementById("captchagid").value;

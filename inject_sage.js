@@ -2,12 +2,21 @@ const port = chrome.runtime.connect({ name: "sage" });
 const isFirefox = !!globalThis.browser;
 
 console.log("[SAGE] [RPCBRIDGE] init");
-setTimeout(() => {
-    const manifest = chrome.runtime.getManifest();
+
+const manifest = chrome.runtime.getManifest();
+const injectManifest = () => {
+    console.log("[SAGE] [MANIFEST] injecting manifest info");
     document.body.setAttribute("sage-data", JSON.stringify({
         version: +manifest.version
     }));
-}, 0)
+};
+
+console.log(`[SAGE] [MANIFEST] scheduled manifest injection: ${document.readyState}`);
+if(document.readyState === "complete") {
+    setTimeout(injectManifest, 0);
+} else {
+    addEventListener("DOMContentLoaded", injectManifest);
+}
 
 const customEventFactory = isFirefox ? (
     (name, options) => {
