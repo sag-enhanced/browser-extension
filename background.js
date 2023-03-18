@@ -263,7 +263,7 @@ let rpcFunctions;
             // main request to steam
             if(details.url.startsWith("https://store.steampowered.com/join/")) {
                 const url = new URL(details.url);
-                if(!url.hash.startsWith("#sage/")) return;
+                if(!url.hash.startsWith("#sage")) return;
                 activeTabIds[details.tabId] = true;
                 details.requestHeaders = modifyHeaders(details.requestHeaders, {
                     "user-agent": STEAM_USERAGENT,
