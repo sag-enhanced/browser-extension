@@ -1,0 +1,14 @@
+{
+	"dependencies": {
+		"esbuild": "^0.17.19",
+		"preact": "^10.15.1"
+	},
+	"devDependencies": {
+		"@types/chrome": "^0.0.223",
+		"@types/node": "^18.15.3"
+	},
+	"scripts": {
+		"dev": "npx -y ts-node build.ts",
+		"build": "NODE_ENV=production npx -y ts-node build.ts"
+	}
+}
