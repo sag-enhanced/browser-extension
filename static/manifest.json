@@ -15,7 +15,7 @@
 			"all_frames": true
 		},
 		{
-			"matches": ["https://sage.party/*", "http://localhost:3000/*"],
+			"matches": ["https://sage.party/*"],
 			"js": ["scripts/sage.js"],
 			"all_frames": true,
 			"run_at": "document_start"

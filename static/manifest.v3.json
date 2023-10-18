@@ -10,6 +10,7 @@
 		"*://recaptcha.net/recaptcha/enterprise/*",
 		"*://steamcommunity.com/",
 		"*://store.steampowered.com/join/*",
+		"*://login.steampowered.com/join/*",
 		"*://.store.steampowered.com/join/*"
 	],
 	"minimum_chrome_version": "100"
