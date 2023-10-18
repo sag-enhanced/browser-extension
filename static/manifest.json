@@ -1,6 +1,6 @@
 {
 	"name": "Steam Account Generator Enhanced",
-	"version": "9",
+	"version": "10",
 	"description": "Assistance for helping sage.party interact with Steam and other services.",
 	"content_scripts": [
 		{
