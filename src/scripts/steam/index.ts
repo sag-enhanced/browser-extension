@@ -13,11 +13,13 @@ ready(() => {
 		console.log("[sage] captcha solved", token);
 		if (!token) return;
 		const gid = getGID();
+		const initId = getInitId();
 
 		window.opener.postMessage(
 			{
 				source: "sage",
 				captcha: { token, gid },
+				init_id: initId,
 			},
 			"*",
 		);
@@ -25,3 +27,7 @@ ready(() => {
 		clearInterval(intervalId);
 	}, 500) as unknown as number;
 });
+
+function getInitId() {
+	return (document.querySelector("init_id") as HTMLInputElement).value;
+}
