@@ -6,6 +6,7 @@ If you just want to install the extension, read the
 ## Building
 
 Requirements:
+
 - Node and NPM (anything above >16 should work)
 - Any operating system should work
 
@@ -14,7 +15,6 @@ Requirements:
 2. Run `npm run build` to build (or `npm run dev` for development builds)
 
 The build output will be in the `out` directory.
-
 
 ## Development build
 
