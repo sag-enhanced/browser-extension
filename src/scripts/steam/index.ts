@@ -29,5 +29,5 @@ ready(() => {
 });
 
 function getInitId() {
-	return (document.querySelector("init_id") as HTMLInputElement).value;
+	return (document.querySelector("#init_id") as HTMLInputElement).value;
 }
