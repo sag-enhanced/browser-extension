@@ -1,4 +1,7 @@
 export async function backgroundFetch(url: string, init: RequestInit) {
+	if (Array.isArray(init.body)) {
+		init.body = new Uint8Array(init.body);
+	}
 	const response = await fetch(url, init);
 	const headers = Object.fromEntries(response.headers.entries());
 	return {
