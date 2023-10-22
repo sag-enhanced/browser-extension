@@ -6,6 +6,8 @@ ready(() => {
 		"sage-data",
 		JSON.stringify({
 			version: +bapi.runtime.getManifest().version,
+			mv: __targetMV,
+			browser: __targetBrowser,
 		}),
 	);
 	console.log("[sage/manifest] injected");
