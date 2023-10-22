@@ -10,7 +10,10 @@
 			"run_at": "document_start"
 		},
 		{
-			"matches": ["https://recaptcha.net/recaptcha/enterprise/anchor*"],
+			"matches": [
+				"https://recaptcha.net/recaptcha/enterprise/anchor*",
+				"https://google.com/recaptcha/enterprise/anchor*"
+			],
 			"js": ["scripts/recaptcha.js"],
 			"all_frames": true
 		},

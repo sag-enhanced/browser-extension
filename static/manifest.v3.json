@@ -7,6 +7,7 @@
 	},
 	"host_permissions": [
 		"*://sage.party/*",
+		"*://google.com/recaptcha/enterprise/*",
 		"*://recaptcha.net/recaptcha/enterprise/*",
 		"*://steamcommunity.com/",
 		"*://store.steampowered.com/join/*",
