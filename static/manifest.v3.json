@@ -1,6 +1,6 @@
 {
 	"manifest_version": 3,
-	"permissions": ["cookies"],
+	"permissions": ["cookies", "proxy"],
 	"background": {
 		"service_worker": "background.js",
 		"type": "module"
