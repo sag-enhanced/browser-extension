@@ -1,7 +1,6 @@
 import { bapi } from "../_shared/env";
 import { getCookieJar, setCookieJar } from "./cookie";
 import { backgroundFetch } from "./fetch";
-import { setProxy } from "./proxy";
 
 interface RPCCall {
 	name: string;
@@ -13,7 +12,6 @@ const fns = {
 	fetch: backgroundFetch,
 	getCookieJar,
 	setCookieJar,
-	setProxy,
 	hello: async () => "world!",
 };
 

@@ -94,7 +94,7 @@ async function buildStatic(target: BuildTarget) {
 			name: "Chromium",
 			bundlename: "sage.crx",
 			outname: "chromium",
-			manifest: 2, // we cant use MV3 due to proxy
+			manifest: 3,
 			browser: "chromium",
 		},
 		{
