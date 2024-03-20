@@ -1,11 +1,13 @@
-import { bapi } from "../../_shared/env";
 import ready from "../../lib/dom";
+import { register } from "../../lib/rpc";
 
 ready(() => {
+	const build = +chrome.runtime.getManifest().version;
 	document.body.setAttribute(
 		"sage-data",
 		JSON.stringify({
-			version: +bapi.runtime.getManifest().version,
+			version: build, // legacy
+			build,
 			mv: __targetMV,
 			browser: __targetBrowser,
 		}),
@@ -13,17 +15,6 @@ ready(() => {
 	console.log("[sage/manifest] injected");
 });
 
-addEventListener("sage-rpc", (ev: CustomEvent) => {
-	const { name, args, uid } = ev.detail;
-	console.log(`[rpc/cs] [${uid}] call`, name, args);
-	bapi.runtime.sendMessage(ev.detail, (data) => {
-		console.log(`[rpc/cs] [${uid}] response`, data);
-		const options = {
-			detail:
-				__targetBrowser === "firefox"
-					? cloneInto(data, document.defaultView)
-					: data,
-		};
-		dispatchEvent(new CustomEvent("sage-rpc-result", options));
-	});
-});
+register("storeScript", (script: string) =>
+	chrome.storage.local.set({ script }),
+);

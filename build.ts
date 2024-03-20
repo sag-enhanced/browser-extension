@@ -15,12 +15,7 @@ interface BuildTarget {
 }
 
 async function buildJavascript(target: BuildTarget, isProd: boolean) {
-	const names = [
-		"background",
-		"scripts/steam",
-		"scripts/recaptcha",
-		"scripts/sage",
-	];
+	const names = ["scripts/steam", "scripts/sage"];
 
 	const promises: Array<Promise<esbuild.BuildResult>> = [];
 	for (let name of names) {
@@ -35,6 +30,7 @@ async function buildJavascript(target: BuildTarget, isProd: boolean) {
 				loader: { ".css": "text" },
 				// target: ["chrome51", "safari11", "firefox53", "edge18"],
 				define: {
+					chrome: target.browser === "chromium" ? "chrome" : "browser",
 					__debugBuild: "" + !isProd,
 					__targetMV: "" + target.manifest,
 					__targetBrowser: JSON.stringify(target.browser),
