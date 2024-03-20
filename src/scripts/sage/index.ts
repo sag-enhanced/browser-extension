@@ -1,5 +1,6 @@
 import ready from "../../lib/dom";
-import { register } from "../../lib/rpc";
+import { register } from "./rpc";
+import { getCookieJar, setCookieJar } from "./cookies";
 
 ready(() => {
 	const build = +chrome.runtime.getManifest().version;
@@ -18,3 +19,14 @@ ready(() => {
 register("storeScript", (script: string) =>
 	chrome.storage.local.set({ script }),
 );
+
+register(
+	"setProxy",
+	(proxy: string) =>
+		new Promise((resolve) => {
+			chrome.runtime.sendMessage({ name: "setProxy", args: [proxy] }, resolve);
+		}),
+);
+
+register("getCookieJar", getCookieJar);
+register("setCookieJar", setCookieJar);

@@ -23,9 +23,15 @@ addEventListener("sage-rpc", (ev: CustomEvent) => {
 					: data;
 			respond({ result });
 		},
-		(err) => {
-			console.error(`[rpc/cs] [${uid}] error`, err);
-			respond({ error: err });
+		(error: Error) => {
+			console.error(`[rpc/cs] [${uid}] error`, error);
+			respond({
+				error: {
+					name: error.name,
+					message: error.message,
+					stack: error.stack,
+				},
+			});
 		},
 	);
 });

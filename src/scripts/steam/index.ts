@@ -15,4 +15,10 @@ ready(async () => {
 	document.documentElement.setAttribute("onreset", code.script);
 	document.documentElement.dispatchEvent(new CustomEvent("reset"));
 	document.documentElement.removeAttribute("onreset");
+
+	addEventListener("beforeunload", () => {
+		if (document.documentElement.hasAttribute("controlled")) return;
+
+		chrome.runtime.sendMessage({ name: "removeProxy", args: [] });
+	});
 });

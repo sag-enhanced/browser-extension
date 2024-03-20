@@ -1,10 +1,14 @@
 {
 	"manifest_version": 3,
-	"permissions": ["storage"],
+	"permissions": ["storage", "proxy"],
 	"host_permissions": [
 		"*://sage.party/*",
 		"*://*.sage.party/*",
 		"*://store.steampowered.com/join/*"
 	],
+	"background": {
+		"service_worker": "background.js",
+		"type": "module"
+	},
 	"minimum_chrome_version": "100"
 }

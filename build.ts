@@ -15,7 +15,7 @@ interface BuildTarget {
 }
 
 async function buildJavascript(target: BuildTarget, isProd: boolean) {
-	const names = ["scripts/steam", "scripts/sage"];
+	const names = ["background", "scripts/steam", "scripts/sage"];
 
 	const promises: Array<Promise<esbuild.BuildResult>> = [];
 	for (let name of names) {

@@ -2,10 +2,14 @@
 	"manifest_version": 2,
 	"permissions": [
 		"storage",
+		"proxy",
 		"*://sage.party/*",
 		"*://*.sage.party/*",
 		"*://store.steampowered.com/join/*"
 	],
+	"background": {
+		"scripts": ["background.js"]
+	},
 	"browser_specific_settings": {
 		"gecko": {
 			"strict_min_version": "100.0",
