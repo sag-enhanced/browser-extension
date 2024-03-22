@@ -1,4 +1,4 @@
-import { sleep } from "../../lib/sleep";
+import { sleep } from "../lib/sleep";
 
 export async function getCookieJar(cookies: Array<Cookie>) {
 	let works = false;
