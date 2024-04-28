@@ -6,21 +6,20 @@ addEventListener("sage-rpc", (ev: CustomEvent) => {
 
 	const respond = (data: any) => {
 		const options = {
-			detail: {
-				uid,
-				...data,
-			},
+			detail:
+				__targetBrowser === "firefox"
+					? cloneInto(data, document.defaultView)
+					: {
+							uid,
+							...data,
+					  },
 		};
 		dispatchEvent(new CustomEvent("sage-rpc-result", options));
 	};
 
 	fns[name](...args).then(
-		(data) => {
-			console.log(`[rpc/cs] [${uid}] response`, data);
-			const result =
-				__targetBrowser === "firefox"
-					? cloneInto(data, document.defaultView)
-					: data;
+		(result) => {
+			console.log(`[rpc/cs] [${uid}] response`, result);
 			respond({ result });
 		},
 		(error: Error) => {
