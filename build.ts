@@ -5,6 +5,8 @@ import * as fs from "node:fs/promises";
 import * as manifest from "./static/manifest.json";
 import * as manifestV2 from "./static/manifest.v2.json";
 import * as manifestV3 from "./static/manifest.v3.json";
+import * as manifestFirefox from "./static/manifest.firefox.json";
+import * as manifestChromium from "./static/manifest.chromium.json";
 
 interface BuildTarget {
 	name: string;
@@ -57,9 +59,12 @@ async function buildJavascript(target: BuildTarget, isProd: boolean) {
 
 async function buildManifest(target: BuildTarget, isProd: boolean) {
 	const versionManifest = target.manifest === 2 ? manifestV2 : manifestV3;
+	const browserManifest =
+		target.browser === "firefox" ? manifestFirefox : manifestChromium;
 	const finalManifest = {
 		...manifest,
 		...versionManifest,
+		...browserManifest,
 	};
 	if (!isProd) {
 		const devURL = "*://localhost/*";
@@ -86,6 +91,13 @@ async function buildStatic(target: BuildTarget) {
 (async () => {
 	const isProd = process.env.NODE_ENV === "production";
 	const targets: Array<BuildTarget> = [
+		{
+			name: "Chromium (MV2)",
+			bundlename: "sage-mv2.crx",
+			outname: "chromium-mv2",
+			manifest: 2,
+			browser: "chromium",
+		},
 		{
 			name: "Chromium",
 			bundlename: "sage.crx",

@@ -1,0 +1,8 @@
+{
+	"browser_specific_settings": {
+		"gecko": {
+			"strict_min_version": "100.0",
+			"id": "{16c0aa8c-6170-4fa4-8c6a-3ac1a4194b22}"
+		}
+	}
+}
