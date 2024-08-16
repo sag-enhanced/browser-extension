@@ -4,7 +4,7 @@
 		"preact": "^10.15.1"
 	},
 	"devDependencies": {
-		"@types/chrome": "^0.0.223",
+		"@types/chrome": "^0.0.270",
 		"@types/node": "^18.15.3"
 	},
 	"scripts": {
