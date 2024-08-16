@@ -15,11 +15,13 @@ ready(() => {
 	console.log("[sage/manifest] injected");
 });
 
-register("storeScript", (script: string) =>
-	chrome.storage.local.set({ script }),
-);
-
-for (const name of ["getCookieJar", "setCookieJar", "removeProxy", "setProxy"])
+for (const name of [
+	"getCookieJar",
+	"setCookieJar",
+	"removeProxy",
+	"setProxy",
+	"storeScript",
+])
 	register(
 		name,
 		(...args: any[]) =>

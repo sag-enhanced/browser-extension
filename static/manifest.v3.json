@@ -1,6 +1,12 @@
 {
 	"manifest_version": 3,
-	"permissions": ["storage", "proxy", "cookies"],
+	"permissions": [
+		"storage",
+		"proxy",
+		"cookies",
+		"tabs",
+		"declarativeNetRequest"
+	],
 	"host_permissions": [
 		"*://sage.party/*",
 		"*://*.sage.party/*",
