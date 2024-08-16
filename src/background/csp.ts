@@ -17,7 +17,7 @@ export async function removeCSP(tabId: number) {
 				return { responseHeaders: details.responseHeaders };
 			},
 			{
-				urls: ["https://store.steampowered.com/join/"],
+				urls: ["https://store.steampowered.com/join/#sage"],
 				types: ["main_frame"],
 				tabId,
 			},
